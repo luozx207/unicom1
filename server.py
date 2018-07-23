@@ -37,6 +37,28 @@ def get_question(question_id):
     conn.close()
     return data
 
+def get_question_count():
+    conn = sqlite3.connect('test.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('select q_type from questions')
+    data=cursor.fetchall()
+    total=len(data)
+    type_1=0
+    type_2=0
+    type_3=0
+    type_4=0
+    for d in data:
+        if d[0]=="1":
+            type_1+=1
+        elif d[0]=="2":
+            type_2+=1
+        elif d[0]=="3":
+            type_3+=1
+        else:
+            type_4+=1
+    return {'total':total,'type_1':type_1,'type_2':type_2,
+            'type_3':type_3,'type_4':type_4}
+
 def get_done(user_id):
     conn = sqlite3.connect('test.sqlite')
     cursor = conn.cursor()
