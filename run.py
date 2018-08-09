@@ -3,7 +3,7 @@ from flask import Flask, g, flash, redirect, url_for,jsonify,json
 from flask import render_template
 from flask import request,session
 from server import get_user_question,update_user_question,get_done
-from server import update_question,get_question_count
+from server import update_question,get_question_count,delete_history
 
 app=Flask(__name__)
 
@@ -58,6 +58,15 @@ def updatequestion():
     data=json.loads(request.get_data())
     try:
         update_question(data)
+    except Exception as e:
+        return jsonify({'status':0,'Exception':str(e)})
+    return jsonify({'status':1})
+
+@app.route('/delete_history',methods=['POST'])
+def d_history():
+    data=json.loads(request.get_data())
+    try:
+        delete_history(data)
     except Exception as e:
         return jsonify({'status':0,'Exception':str(e)})
     return jsonify({'status':1})

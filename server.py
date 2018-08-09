@@ -18,7 +18,10 @@ def get_user_question(user_id,q_type):
     cursor = conn.cursor()
     cursor.execute('select question_id from user_questions where user_id=?',(user_id,))
     done=set([x[0] for x in cursor.fetchall()])
-    cursor.execute('select id from questions where q_type=?',(q_type,))
+    if q_type=='0':
+        cursor.execute('select id from questions')
+    else:
+        cursor.execute('select id from questions where q_type=?',(q_type,))
     questions= set([x[0] for x in cursor.fetchall()])
     conn.close()
     undone=list(questions-done)
@@ -85,5 +88,13 @@ def update_question(data):
                     (data['title'],data['answer'],\
                     data['A'],data['B'],data['C'],\
                     data['D'],data['explain'],data['q_type']))
+    conn.commit()
+    conn.close()
+
+def delete_history(data):
+    conn = sqlite3.connect('test.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('delete from user_questions where user_id=? and question_id=?',\
+                    (data['user_id'],data['question_id']))
     conn.commit()
     conn.close()
