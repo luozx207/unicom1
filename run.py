@@ -16,11 +16,13 @@ def question(user_id,q_type):
         except Exception as e:
             return jsonify({'status':0,'Exception':str(e)})
         return jsonify({'status':1})
-
+        
     try:
         question_id,data,undone = get_user_question(user_id,q_type)
     except Exception as e:
         return jsonify({'status':0,'Exception':str(e)})
+    if undone==0:
+        return jsonify({'status':2})
     return jsonify({'status':1,
                     'data':{
                         'questionId':question_id,

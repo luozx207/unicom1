@@ -25,8 +25,10 @@ def get_user_question(user_id,q_type):
     questions= set([x[0] for x in cursor.fetchall()])
     conn.close()
     undone=list(questions-done)
+    if len(undone)==0:
+        return [0,0,0]
     r=random.choice(undone)
-    return [r,get_question(r),len(undone)-1]
+    return [r,get_question(r),len(undone)]
 
 
 def get_question(question_id):
@@ -62,7 +64,7 @@ def get_question_count():
 def get_done(user_id):
     conn = sqlite3.connect('test.sqlite')
     cursor = conn.cursor()
-    cursor.execute('select question_id,choice from user_questions where user_id=?',(user_id,))
+    cursor.execute('select question_id,choice from user_questions where user_id=? and result=0',(user_id,))
     done=cursor.fetchall()
     total=len(done)
     question_data=[]
@@ -94,7 +96,7 @@ def update_question(data):
 def delete_history(data):
     conn = sqlite3.connect('test.sqlite')
     cursor = conn.cursor()
-    cursor.execute('delete from user_questions where user_id=? and question_id=?',\
+    cursor.execute('update user_questions set result=1 where user_id=? and question_id=?',\
                     (data['user_id'],data['question_id']))
     conn.commit()
     conn.close()
