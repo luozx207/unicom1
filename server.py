@@ -1,6 +1,6 @@
 import sqlite3
 import re
-import datetime
+from datetime import date
 import random
 
 def update_user_question(**data):
@@ -98,5 +98,28 @@ def delete_history(data):
     cursor = conn.cursor()
     cursor.execute('update user_questions set result=1 where user_id=? and question_id=?',\
                     (data['user_id'],data['question_id']))
+    conn.commit()
+    conn.close()
+
+def get_sign_info(user_id):
+    conn = sqlite3.connect('test.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('select date from sign where user_id=?',(user_id,))
+    all_date=set([x[0] for x in cursor.fetchall()])
+    now_date=date.today().strftime('%Y-%m-%d')
+    if now_date in all_date:
+        signed=True
+    else:
+        signed=False
+    total=len(all_date)
+    conn.close()
+    return {'total':total,'signed':signed}
+
+def update_sign(user_id):
+    now_date=date.today().strftime('%Y-%m-%d')
+    conn = sqlite3.connect('test.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('insert into sign (user_id,date) values(?,?)',\
+                (user_id,now_date))
     conn.commit()
     conn.close()

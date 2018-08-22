@@ -4,6 +4,7 @@ from flask import render_template
 from flask import request,session
 from server import get_user_question,update_user_question,get_done
 from server import update_question,get_question_count,delete_history
+from server import get_sign_info,update_sign
 
 app=Flask(__name__)
 
@@ -16,7 +17,7 @@ def question(user_id,q_type):
         except Exception as e:
             return jsonify({'status':0,'Exception':str(e)})
         return jsonify({'status':1})
-        
+
     try:
         question_id,data,undone = get_user_question(user_id,q_type)
     except Exception as e:
@@ -54,6 +55,23 @@ def historyquestion(user_id):
     return jsonify({'status':1,
                     'data':data,
                     })
+
+@app.route('/get_sign/<user_id>')
+def get_sign(user_id):
+    try:
+        data=get_sign_info(user_id)
+    except Exception as e:
+        return jsonify({'status':0,'Exception':str(e)})
+    return jsonify({'status':1,'data':data})
+
+@app.route('/sign/<user_id>')
+def sign(user_id):
+    try:
+        update_sign(user_id)
+    except Exception as e:
+        return jsonify({'status':0,'Exception':str(e)})
+    return jsonify({'status':1})
+
 
 @app.route('/updatequestion/',methods=['POST'])
 def updatequestion():
