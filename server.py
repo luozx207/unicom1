@@ -2,6 +2,7 @@ import sqlite3
 import re
 from datetime import date
 import random
+import urllib3,json
 
 def update_user_question(**data):
     conn = sqlite3.connect('test.sqlite')
@@ -119,7 +120,23 @@ def update_sign(user_id):
     now_date=date.today().strftime('%Y-%m-%d')
     conn = sqlite3.connect('test.sqlite')
     cursor = conn.cursor()
-    cursor.execute('insert into sign (user_id,date) values(?,?)',\
+    cursor.execute('select date from sign where user_id=?',(user_id,))
+    all_date=set([x[0] for x in cursor.fetchall()])
+    if now_date in all_date:
+        raise Exception("今日已签到")
+    else:
+        #获取token
+        http=urllib3.PoolManager()
+        r=http.request('GET','https://www.tiucloud.cn/signed')
+        d = json.loads(r.data.decode())
+        #发送token，增加D币
+        data={'token':d['token'],'userId':int(user_id)}
+        encoded_data = json.dumps(data).encode('utf-8')
+        http.request('POST','https://www.tiucloud.cn/signedadd',
+                body=encoded_data,
+                headers={'Content-Type':'application/json'})
+        #增加签到信息
+        cursor.execute('insert into sign (user_id,date) values(?,?)',\
                 (user_id,now_date))
     conn.commit()
     conn.close()
